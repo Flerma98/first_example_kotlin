@@ -1,0 +1,2 @@
+rootProject.name = "kotlin_example_1"
+include ':app'
