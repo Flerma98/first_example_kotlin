@@ -54,12 +54,6 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         myFrameLayout = findViewById(R.id.frmMainActivity)
-        /*myListLanguages = arrayListOf()
-        for (index in language.indices) {
-            myListLanguages.add(ProgramLanguage(null, language[index], description[index]))
-        }
-
-         */
         readData()
     }
 
@@ -105,18 +99,16 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
             }
         }
         myListLanguages = listItems as ArrayList<ProgramLanguage>
-        if (myListLanguages?.isEmpty()) showNoData()
-        showListData()
+        if (myListLanguages == null || myListLanguages?.isEmpty()) showNoData() else showListData()
     }
 
     fun showNoData() {
         val myTextView = TextView(this)
         myTextView.text = "No Data"
-        myTextView.textSize = 20f
+        myTextView.textSize = 40f
         myTextView.gravity = Gravity.CENTER
         myTextView.setTypeface(null, Typeface.BOLD)
-        myFrameLayout.removeAllViews()
-        myFrameLayout.addView(myTextView)
+        insertView(myTextView)
     }
 
     fun showListData() {
@@ -124,5 +116,12 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
         myRecyclerView.layoutManager = LinearLayoutManager(this)
         myRecyclerView.setHasFixedSize(true)
         myRecyclerView.adapter = AdapterRVLanguage(myListLanguages, this)
+        insertView(myRecyclerView)
     }
+
+    fun insertView(view: View) {
+        myFrameLayout.removeAllViews()
+        myFrameLayout.addView(view)
+    }
+
 }
