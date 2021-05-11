@@ -3,20 +3,23 @@ package com.fragmentoapps.kotlin_example_1
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fragmentoapps.kotlin_example_1.adapters.AdapterRVLanguage
+import com.fragmentoapps.kotlin_example_1.database.DatabaseHelper
 import com.fragmentoapps.kotlin_example_1.models.ProgramLanguage
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener {
-    private lateinit var myRecyclerViewLanguage: RecyclerView
-    private lateinit var myListLanguages: ArrayList<ProgramLanguage>
+    private lateinit var myFrameLayout: FrameLayout
+    private var myListLanguages: ArrayList<ProgramLanguage> = arrayListOf()
 
-    val language = arrayOf(
+    private val language = arrayOf(
         "C",
         "C++",
         "Java",
@@ -31,7 +34,7 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
         "Perl",
         "Hadoop"
     )
-    val description = arrayOf(
+    private val description = arrayOf(
         "C programming is considered as the base for other programming languages",
         "C++ is an object-oriented programming language.",
         "Java is a programming language and a platform.",
@@ -50,14 +53,14 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        myListLanguages = arrayListOf()
+        myFrameLayout = findViewById(R.id.frmMainActivity)
+        /*myListLanguages = arrayListOf()
         for (index in language.indices) {
-            myListLanguages.add(ProgramLanguage(language[index], description[index]))
+            myListLanguages.add(ProgramLanguage(null, language[index], description[index]))
         }
-        myRecyclerViewLanguage = findViewById(R.id.rvLanguages)
-        myRecyclerViewLanguage.layoutManager = LinearLayoutManager(this)
-        myRecyclerViewLanguage.setHasFixedSize(true)
-        myRecyclerViewLanguage.adapter = AdapterRVLanguage(myListLanguages, this)
+
+         */
+        readData()
     }
 
     fun showSnackBar(view: View, text: String, isError: Boolean) {
@@ -77,5 +80,49 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
             val clickedItem: ProgramLanguage = myListLanguages[position]
             showSnackBar(this.findViewById(android.R.id.content), "${clickedItem.name}", false)
         }
+    }
+
+    fun readData() {
+        val dbHelper = DatabaseHelper(this)
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            "Languages",
+            null,
+            null,
+            null,
+            null,
+            null,
+            "id DESC"
+        )
+        val listItems = mutableListOf<ProgramLanguage>()
+        with(cursor) {
+            while (moveToNext()) {
+                val itemId = getLong(getColumnIndexOrThrow("id"))
+                val itemName = getString(getColumnIndexOrThrow("name"))
+                val itemDescription = getString(getColumnIndexOrThrow("description"))
+                val language = ProgramLanguage(itemId, itemName, itemDescription)
+                listItems.add(language)
+            }
+        }
+        myListLanguages = listItems as ArrayList<ProgramLanguage>
+        if (myListLanguages?.isEmpty()) showNoData()
+        showListData()
+    }
+
+    fun showNoData() {
+        val myTextView = TextView(this)
+        myTextView.text = "No Data"
+        myTextView.textSize = 20f
+        myTextView.gravity = Gravity.CENTER
+        myTextView.setTypeface(null, Typeface.BOLD)
+        myFrameLayout.removeAllViews()
+        myFrameLayout.addView(myTextView)
+    }
+
+    fun showListData() {
+        val myRecyclerView = RecyclerView(this)
+        myRecyclerView.layoutManager = LinearLayoutManager(this)
+        myRecyclerView.setHasFixedSize(true)
+        myRecyclerView.adapter = AdapterRVLanguage(myListLanguages, this)
     }
 }
