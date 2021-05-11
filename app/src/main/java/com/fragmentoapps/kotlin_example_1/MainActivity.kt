@@ -1,5 +1,6 @@
 package com.fragmentoapps.kotlin_example_1
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -13,10 +14,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fragmentoapps.kotlin_example_1.adapters.AdapterRVLanguage
 import com.fragmentoapps.kotlin_example_1.database.DatabaseHelper
 import com.fragmentoapps.kotlin_example_1.models.ProgramLanguage
+import com.fragmentoapps.kotlin_example_1.pages.CreateLanguagePage
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener {
     private lateinit var myFrameLayout: FrameLayout
+    private lateinit var fabCreate: FloatingActionButton
     private var myListLanguages: ArrayList<ProgramLanguage> = arrayListOf()
 
     private val language = arrayOf(
@@ -53,7 +57,13 @@ class MainActivity : AppCompatActivity(), AdapterRVLanguage.OnItemClickListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        title = "Languages"
         myFrameLayout = findViewById(R.id.frmMainActivity)
+        fabCreate = findViewById(R.id.fabCreateLanguage)
+
+        fabCreate.setOnClickListener { view ->
+            startActivity(Intent(this, CreateLanguagePage::class.java))
+        }
         readData()
     }
 
